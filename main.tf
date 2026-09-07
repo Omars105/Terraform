@@ -11,6 +11,7 @@ variable "env-prefix" {}
 variable "my-ip" {}
 variable "instance_type" {}
 variable "ssh-public-key-location" {}
+variable "ssh-private-key-location" {}
 
 
 resource "aws_vpc" "myapp-vpc" {
@@ -162,10 +163,29 @@ resource "aws_instance" "myapp-server" {
   associate_public_ip_address = true
   key_name = aws_key_pair.ssh-key.key_name
 
-  user_data = file("entry-script.sh")
+#  user_data = file("entry-script.sh")
 
  user_data_replace_on_change = true
-  
+
+ connection {
+  type = "ssh"
+  user = "ec2-user"
+  private_key = file(var.ssh-private-key-location)
+  host = self.public_ip
+ }
+
+provisioner "file" {
+  source = "./entry-script.sh"
+  destination = "/home/ec2-user/entry-script.sh"
+}
+
+ provisioner "remote-exec" {
+  inline = ["/home/ec2-user/entry-script.sh"]
+ }
+
+ provisioner "local-exec" {
+   command = "echo 'ec2 server provisioned' >> output.txt"
+ }
   
 
   tags = {

@@ -1,9 +1,9 @@
 #!/usr/bin/env groovy
 
-library identifier: 'jenkins-shared-library@master', retriever: modernSCM(
+library identifier: 'jenkins-shared-library@jenkins-shared-lib-terrafrom-project', retriever: modernSCM(
   [$class: 'GitSCMSource',
-  remote: 'https://gitlab.com/twn-devops-bootcamp/latest/12-terraform/jenkins-shared-library.git',
-  credentialsId: 'gitlab-credentials'
+  remote: 'https://github.com/Omars105/Jenkins-shared-library.git',
+  credentialsId: 'Github-jenkins-pat'
   ]
 )
 
@@ -13,10 +13,11 @@ pipeline {
     maven 'Maven'
   }
   environment {
-    IMAGE_NAME = 'nanatwn/demo-app:java-maven-2.0'
+    IMAGE_NAME = 'omar1015/java-maven-app:java-maven-2.0'
   }
   stages {
     stage("build app") {
+
       steps {
         script {
           echo 'building application jar...'
@@ -34,17 +35,39 @@ pipeline {
         }
       }
     }
+    stage("provision server"){
+      environment {
+        AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
+        AWS_SECRET_ACCESS_KEY = credentials('jenkins-aws_secret_access_key_id')
+        TF_VAR_env_prefix = 'test'
+      }
+    steps{
+      script{
+        dir("terraform") {
+          sh "terrform init"
+          sh "terrform apply --auto-approve "
+          EC2_PUBLIC_IP = sh ( script:"terrform output ec2-public-ip", returnStdout: true ).trim()
+          
+        }
+      }
+    }
+    }
     stage("deploy") {
+      environment {
+        DOCKER_CREDS = credentials('docker-hub-repo')
+      }
       steps {
         script {
+          echo "waiting for EC2 to be ready"
+          sleep(time:360, unit:"SECONDS")
           echo 'deploying docker image to EC2...'
           
-          def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME}"
-          def ec2Instance = "ec2-user@$35.180.151.121"
+          def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME} ${DOCKER_CREDS_USR} ${DOCKER_CREDS_PWD}"
+          def ec2Instance = "ec2-user@${EC2_PUBLIC_IP}"
 
           sshagent(['server-ssh-key']) {
-            sh "scp -o server-cmds.sh ${ec2Instance}:/home/ec2-user"
-            sh "scp -o docker-compose.yaml ${ec2Instance}:/home/ec2-user"
+            sh "scp -o StrictHostKeyChecking=no server-cmds.sh ${ec2Instance}:/home/ec2-user"
+            sh "scp -o StrictHostKeyChecking=no docker-compose.yaml ${ec2Instance}:/home/ec2-user"
             sh "ssh -o StrictHostKeyChecking=no ${ec2Instance} ${shellCmd}"
           }
         }

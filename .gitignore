@@ -1,5 +1,1 @@
-#local terraform files
-.terraform
-*.tfstate
-*.tfstate.*
-*.tfvars
+.idea/*

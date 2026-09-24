@@ -14,6 +14,7 @@ pipeline {
   }
   environment {
     IMAGE_NAME = 'omar1015/java-maven-app:java-maven-2.0'
+    BRANCH_NAME = 'feature/terraform-jenkins-project'
   }
   stages {
     stage("build app") {

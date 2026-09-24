@@ -14,7 +14,7 @@ variable "my-ip" {
     default = "197.46.229.191/32"
 }
 variable "instance_type" {
-    default = "t2.micro"
+    default = "t3.micro"
 }
 
 variable "region" {

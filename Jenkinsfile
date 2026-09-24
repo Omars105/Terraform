@@ -10,7 +10,7 @@ library identifier: 'jenkins-shared-library@jenkins-shared-lib-terrafrom-project
 pipeline {   
   agent any
   tools {
-    maven 'Maven'
+    maven 'maven-3.9'
   }
   environment {
     IMAGE_NAME = 'omar1015/java-maven-app:java-maven-2.0'

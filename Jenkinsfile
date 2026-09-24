@@ -63,7 +63,7 @@ pipeline {
           sleep(time:360, unit:"SECONDS")
           echo 'deploying docker image to EC2...'
           
-          def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME} ${DOCKER_CREDS_USR} ${DOCKER_CREDS_PWD}"
+          def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME} ${DOCKER_CREDS_USR} ${DOCKER_CREDS_PSW}"
           def ec2Instance = "ec2-user@${EC2_PUBLIC_IP}"
 
           sshagent(['server-ssh-key']) {

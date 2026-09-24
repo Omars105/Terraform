@@ -55,7 +55,7 @@ pipeline {
     }
     stage("deploy") {
       environment {
-        DOCKER_CREDS = credentials('docker-hub-repo')
+        DOCKER_CREDS = credentials('omar-dockerhub-repo')
       }
       steps {
         script {

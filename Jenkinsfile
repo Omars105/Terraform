@@ -60,7 +60,7 @@ pipeline {
       steps {
         script {
           echo "waiting for EC2 to be ready"
-          sleep(time:360, unit:"SECONDS")
+          sleep(time:60, unit:"SECONDS")
           echo 'deploying docker image to EC2...'
           
           def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME} ${DOCKER_CREDS_USR} ${DOCKER_CREDS_PSW}"
